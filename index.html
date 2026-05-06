@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neon Customer Search</title>
+    <title>RE-SOLLECT SEARCH</title>
     <style>
         :root {
             --bg-color: #0d1117;
@@ -14,43 +14,38 @@
             --text-color: #e6edf3;
             --border-color: rgba(0, 242, 254, 0.3);
         }
-
         body {
-            font-family: 'Courier New', Courier, monospace; /* Monospace for that tech feel */
+            font-family: 'Courier New', Courier, monospace;
             background-color: var(--bg-color);
             color: var(--text-color);
             display: flex;
             justify-content: center;
-            padding: 40px;
+            padding: 20px;
             margin: 0;
             min-height: 100vh;
         }
-
         .container {
             background-color: var(--card-bg);
             padding: 30px;
             border-radius: 12px;
-            box-shadow: 0 0 20px rgba(0, 242, 254, 0.2); /* Soft blue glow */
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.2);
             border: 1px solid var(--border-color);
             width: 100%;
-            max-width: 500px;
+            max-width: 600px;
             text-align: center;
         }
-
         h2 {
             color: var(--neon-blue);
-            text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue);
+            text-shadow: 0 0 10px var(--neon-blue);
             margin-bottom: 25px;
             text-transform: uppercase;
             letter-spacing: 2px;
         }
-
         .search-box {
             display: flex;
             gap: 10px;
             margin-bottom: 25px;
         }
-
         input {
             flex-grow: 1;
             padding: 12px;
@@ -61,12 +56,6 @@
             color: var(--neon-green);
             font-family: inherit;
         }
-
-        input:focus {
-            border-color: var(--neon-pink);
-            box-shadow: 0 0 10px rgba(255, 0, 222, 0.5);
-        }
-
         button {
             background-color: transparent;
             color: var(--neon-blue);
@@ -75,56 +64,37 @@
             border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
-            font-family: inherit;
             text-transform: uppercase;
-            transition: all 0.3s ease;
         }
-
         button:hover {
             background-color: var(--neon-blue);
             color: #000;
             box-shadow: 0 0 15px var(--neon-blue);
         }
-
-        #status {
-            margin-top: 15px;
-            font-weight: bold;
-            text-transform: uppercase;
-            font-size: 14px;
-        }
-
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 25px;
             text-align: left;
             border: 1px solid var(--border-color);
-            box-shadow: 0 0 10px rgba(0, 242, 254, 0.1);
         }
-
         th, td {
             padding: 12px;
             border: 1px solid rgba(0, 242, 254, 0.2);
-            font-size: 14px;
+            font-size: 13px;
         }
-
         th {
             background-color: rgba(0, 242, 254, 0.05);
             color: var(--neon-pink);
-            text-transform: uppercase;
-            letter-spacing: 1px;
             width: 40%;
         }
-
-        td {
-            color: var(--neon-green);
-        }
+        td { color: var(--neon-green); }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>SYSTEM ACCESS</h2>
+    <h2>RE-SOLLECT SEARCH</h2>
     <div class="search-box">
         <input type="text" id="searchInput" placeholder="ENTER LAN ID...">
         <button onclick="searchData()">QUERY</button>
@@ -135,19 +105,20 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 <script>
-    const publicUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSu5_jqpaTD82nyaE_nClF1FIjs7wLsGKCU0DhhiAzdx7fpWVlizbS5PdhEZ_tftEN5Ky-Vkv3wkagW/pub?output=csv";
+    // Updated CSV URL from your prompt
+    const publicUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSu5_jqpaTD82nyaE_nClF1FIjs7wLsGKCU0DhhiAzdx7fpWVlizbS5PdhEZ_tftEN5Ky-Vkv3wkagW/pub?gid=1390906831&single=true&output=csv";
 
     function searchData() {
-        const query = document.getElementById('searchInput').value.trim().toLowerCase();
+        const query = document.getElementById('searchInput').value.trim().toUpperCase();
         const status = document.getElementById('status');
         const resultDiv = document.getElementById('result');
 
         if (!query) {
-            status.innerHTML = "<span style='color:orange;'>AWAITING ID INPUT...</span>";
+            status.innerHTML = "AWAITING INPUT...";
             return;
         }
 
-        status.innerHTML = "<span style='color:var(--neon-blue);'>SCANNING DATABASE...</span>";
+        status.innerHTML = "SCANNING...";
         resultDiv.innerHTML = "";
 
         Papa.parse(publicUrl, {
@@ -156,28 +127,27 @@
             skipEmptyLines: true,
             complete: function(results) {
                 const data = results.data;
-                const foundRow = data.find(row => {
-                    const firstKey = Object.keys(row)[0];
-                    return String(row[firstKey]).toLowerCase().trim() === query;
-                });
+                // Search specifically in the 'LAN_ID' column
+                const foundRow = data.find(row => 
+                    row.LAN_ID && row.LAN_ID.toString().trim().toUpperCase() === query
+                );
 
                 if (foundRow) {
-                    status.innerHTML = "<span style='color:var(--neon-green); text-shadow: 0 0 5px var(--neon-green);'>RECORD FOUND</span>";
+                    status.innerHTML = "<span style='color:var(--neon-green)'>MATCH FOUND</span>";
                     let table = "<table>";
                     for (let key in foundRow) {
                         table += `<tr><th>${key}</th><td>${foundRow[key]}</td></tr>`;
                     }
                     resultDiv.innerHTML = table + "</table>";
                 } else {
-                    status.innerHTML = "<span style='color:var(--neon-pink); text-shadow: 0 0 5px var(--neon-pink);'>ID NOT FOUND</span>";
+                    status.innerHTML = "<span style='color:var(--neon-pink)'>NO MATCH IN DATABASE</span>";
                 }
             },
             error: function() {
-                status.innerHTML = "<span style='color:red;'>CONNECTION ERROR</span>";
+                status.innerHTML = "<span style='color:red;'>SYSTEM ERROR: CHECK CONNECTION</span>";
             }
         });
     }
 </script>
-
 </body>
 </html>
