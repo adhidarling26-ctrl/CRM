@@ -1,51 +1,179 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Quick Search</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Customer Search</title>
     <style>
-        body { font-family: sans-serif; padding: 40px; text-align: center; background: #f4f4f9; }
-        .box { background: white; padding: 30px; border-radius: 10px; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        input { padding: 10px; width: 250px; border: 1px solid #ddd; border-radius: 5px; }
-        button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        table { margin-top: 20px; border-collapse: collapse; width: 100%; text-align: left; }
-        th, td { padding: 10px; border: 1px solid #eee; }
-        th { background: #fafafa; width: 40%; }
+        :root {
+            --bg-color: #0d1117;
+            --card-bg: #161b22;
+            --neon-blue: #00f2fe;
+            --neon-pink: #ff00de;
+            --neon-green: #0f0;
+            --text-color: #e6edf3;
+            --border-color: rgba(0, 242, 254, 0.3);
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace; /* Monospace for that tech feel */
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            padding: 40px;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.2); /* Soft blue glow */
+            border: 1px solid var(--border-color);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        h2 {
+            color: var(--neon-blue);
+            text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue);
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        input {
+            flex-grow: 1;
+            padding: 12px;
+            background-color: #000;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            outline: none;
+            color: var(--neon-green);
+            font-family: inherit;
+        }
+
+        input:focus {
+            border-color: var(--neon-pink);
+            box-shadow: 0 0 10px rgba(255, 0, 222, 0.5);
+        }
+
+        button {
+            background-color: transparent;
+            color: var(--neon-blue);
+            border: 2px solid var(--neon-blue);
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-family: inherit;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: var(--neon-blue);
+            color: #000;
+            box-shadow: 0 0 15px var(--neon-blue);
+        }
+
+        #status {
+            margin-top: 15px;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 14px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+            text-align: left;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.1);
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid rgba(0, 242, 254, 0.2);
+            font-size: 14px;
+        }
+
+        th {
+            background-color: rgba(0, 242, 254, 0.05);
+            color: var(--neon-pink);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            width: 40%;
+        }
+
+        td {
+            color: var(--neon-green);
+        }
     </style>
 </head>
 <body>
 
-<div class="box">
-    <h2>Customer Search</h2>
-    <input type="text" id="lanId" placeholder="Enter LAN ID">
-    <button onclick="doSearch()">Search</button>
-    <div id="out"></div>
+<div class="container">
+    <h2>SYSTEM ACCESS</h2>
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="ENTER LAN ID...">
+        <button onclick="searchData()">QUERY</button>
+    </div>
+    <div id="status"></div>
+    <div id="result"></div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 <script>
-    // PASTE YOUR GOOGLE SHEET URL BELOW
-    const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSu5_jqpaTD82nyaE_nClF1FIjs7wLsGKCU0DhhiAzdx7fpWVlizbS5PdhEZ_tftEN5Ky-Vkv3wkagW/pubhtml"; 
+    const publicUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSu5_jqpaTD82nyaE_nClF1FIjs7wLsGKCU0DhhiAzdx7fpWVlizbS5PdhEZ_tftEN5Ky-Vkv3wkagW/pub?output=csv";
 
-    function doSearch() {
-        const target = document.getElementById('lanId').value.trim().toLowerCase();
-        const output = document.getElementById('out');
-        output.innerHTML = "Searching...";
+    function searchData() {
+        const query = document.getElementById('searchInput').value.trim().toLowerCase();
+        const status = document.getElementById('status');
+        const resultDiv = document.getElementById('result');
 
-        // Convert regular URL to CSV export URL
-        const csvURL = sheetURL.replace(/\/edit.*$/, '/export?format=csv');
+        if (!query) {
+            status.innerHTML = "<span style='color:orange;'>AWAITING ID INPUT...</span>";
+            return;
+        }
 
-        Papa.parse(csvURL, {
+        status.innerHTML = "<span style='color:var(--neon-blue);'>SCANNING DATABASE...</span>";
+        resultDiv.innerHTML = "";
+
+        Papa.parse(publicUrl, {
             download: true,
             header: true,
+            skipEmptyLines: true,
             complete: function(results) {
-                const row = results.data.find(r => String(Object.values(r)[0]).toLowerCase() === target);
-                if (row) {
-                    let html = "<table>";
-                    for (let key in row) { html += `<tr><th>${key}</th><td>${row[key]}</td></tr>`; }
-                    output.innerHTML = html + "</table>";
+                const data = results.data;
+                const foundRow = data.find(row => {
+                    const firstKey = Object.keys(row)[0];
+                    return String(row[firstKey]).toLowerCase().trim() === query;
+                });
+
+                if (foundRow) {
+                    status.innerHTML = "<span style='color:var(--neon-green); text-shadow: 0 0 5px var(--neon-green);'>RECORD FOUND</span>";
+                    let table = "<table>";
+                    for (let key in foundRow) {
+                        table += `<tr><th>${key}</th><td>${foundRow[key]}</td></tr>`;
+                    }
+                    resultDiv.innerHTML = table + "</table>";
                 } else {
-                    output.innerHTML = "<p style='color:red'>Not found.</p>";
+                    status.innerHTML = "<span style='color:var(--neon-pink); text-shadow: 0 0 5px var(--neon-pink);'>ID NOT FOUND</span>";
                 }
+            },
+            error: function() {
+                status.innerHTML = "<span style='color:red;'>CONNECTION ERROR</span>";
             }
         });
     }
