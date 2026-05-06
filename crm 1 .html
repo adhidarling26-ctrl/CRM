@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quick Search</title>
+    <style>
+        body { font-family: sans-serif; padding: 40px; text-align: center; background: #f4f4f9; }
+        .box { background: white; padding: 30px; border-radius: 10px; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        input { padding: 10px; width: 250px; border: 1px solid #ddd; border-radius: 5px; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        table { margin-top: 20px; border-collapse: collapse; width: 100%; text-align: left; }
+        th, td { padding: 10px; border: 1px solid #eee; }
+        th { background: #fafafa; width: 40%; }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2>Customer Search</h2>
+    <input type="text" id="lanId" placeholder="Enter LAN ID">
+    <button onclick="doSearch()">Search</button>
+    <div id="out"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+<script>
+    // PASTE YOUR GOOGLE SHEET URL BELOW
+    const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSu5_jqpaTD82nyaE_nClF1FIjs7wLsGKCU0DhhiAzdx7fpWVlizbS5PdhEZ_tftEN5Ky-Vkv3wkagW/pubhtml"; 
+
+    function doSearch() {
+        const target = document.getElementById('lanId').value.trim().toLowerCase();
+        const output = document.getElementById('out');
+        output.innerHTML = "Searching...";
+
+        // Convert regular URL to CSV export URL
+        const csvURL = sheetURL.replace(/\/edit.*$/, '/export?format=csv');
+
+        Papa.parse(csvURL, {
+            download: true,
+            header: true,
+            complete: function(results) {
+                const row = results.data.find(r => String(Object.values(r)[0]).toLowerCase() === target);
+                if (row) {
+                    let html = "<table>";
+                    for (let key in row) { html += `<tr><th>${key}</th><td>${row[key]}</td></tr>`; }
+                    output.innerHTML = html + "</table>";
+                } else {
+                    output.innerHTML = "<p style='color:red'>Not found.</p>";
+                }
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
